@@ -34,25 +34,25 @@ test('post order with correct data should receive code 201', async ({ request })
 
 test('get order with orderId 0 should receive code 400', async ({ request }) => {
   // Build and send a GET request to the server
-  const response = await request.get ('https://backend.tallinn-learning.ee/test-orders/0')
-expect(response.status()).toBe(StatusCodes.BAD_REQUEST)
+  const response = await request.get('https://backend.tallinn-learning.ee/test-orders/0')
+  expect(response.status()).toBe(StatusCodes.BAD_REQUEST)
 })
 
 test('get order with orderId 11 should receive code 400', async ({ request }) => {
   // Build and send a GET request to the server
-  const response = await request.get ('https://backend.tallinn-learning.ee/test-orders/11')
+  const response = await request.get('https://backend.tallinn-learning.ee/test-orders/11')
   expect(response.status()).toBe(StatusCodes.BAD_REQUEST)
 })
 
 test('get order with orderId NULL should receive code 500', async ({ request }) => {
   // Build and send a GET request to the server
-  const response = await request.get ('https://backend.tallinn-learning.ee/test-orders/')
+  const response = await request.get('https://backend.tallinn-learning.ee/test-orders/')
   expect(response.status()).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
 })
 
 test('get order with orderId = test should receive code 400', async ({ request }) => {
   // Build and send a GET request to the server
-  const response = await request.get ('https://backend.tallinn-learning.ee/test-orders/test')
+  const response = await request.get('https://backend.tallinn-learning.ee/test-orders/test')
   expect(response.status()).toBe(StatusCodes.BAD_REQUEST)
 })
 
