@@ -4,7 +4,7 @@ export class OrderDto {
   customerName: string;
   customerPhone: string;
   comment: string;
-  id: number;
+  id: number | undefined;
 
   private constructor(
     status: string,
@@ -12,7 +12,7 @@ export class OrderDto {
     customerName: string,
     customerPhone: string,
     comment: string,
-    id: number,
+    id: number | undefined,
   ) {
     this.status = status;
     this.courierId = courierId;
@@ -23,5 +23,16 @@ export class OrderDto {
   }
   static createOrderWithRandomData(): OrderDto {
     return new OrderDto ('OPEN',Math.floor(Math.random()*100),'John','+983','test order',Math.floor(Math.random()*100))
+  }
+  // add a method to create a new instance with orderid = undefined
+  static createOrderWithoutId(): OrderDto {
+    return new OrderDto(
+      'OPEN',
+      Math.floor(Math.random() * 100),
+      'John Doe',
+      '+123456789',
+      'Urgent order',
+      undefined,
+    )
   }
 }
