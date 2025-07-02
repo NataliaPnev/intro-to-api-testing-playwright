@@ -35,4 +35,15 @@ export class OrderDto {
       undefined,
     )
   }
+  // add a method to creste a new basic instance like in swagger
+  static createBasicOrder(): OrderDto {
+    return new OrderDto(
+      'OPEN',
+      0,
+      'string',
+      'string',
+      'string',
+      0,
+    )
+  }
 }

@@ -20,9 +20,9 @@ Testing Delete endpoint
 
 Testing GET endpoint
 
-|  №  | Name                                                             |    Testing data    |
-|:---:|:-----------------------------------------------------------------|:------------------:|
-|  1  | Successful authorisation with correct data and returning api-key | 'Natali','test123' |
-|  2  | Unsuccessful authorisation with null name                        |        null        |
-|  3  | Unsuccessful authorisation with null password                    |        null        |
+|  №  | Name                                          |    Testing data    |
+|:---:|:----------------------------------------------|:------------------:|
+|  1  | Successful authorisation with correct query   | 'Natali','test123' |
+|  2  | Unsuccessful authorisation with null name     |        null        |
+|  3  | Unsuccessful authorisation with null password |        null        |
 
