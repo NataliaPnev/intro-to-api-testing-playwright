@@ -21,4 +21,15 @@ export class ApplicantDetailsDto {
     this.loanAmount = loanAmount;
     this.loanPeriod = loanPeriod;
   }
+  // add a method to create the same applicant with different loan periods
+  static differentLoanPeriods(loanPeriod:number): ApplicantDetailsDto {
+    return new ApplicantDetailsDto(
+      20000,
+      0,
+      30,
+      true,
+      500,
+      loanPeriod,
+    )
+  }
 }
