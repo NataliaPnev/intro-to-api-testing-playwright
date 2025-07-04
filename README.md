@@ -26,3 +26,14 @@ Testing GET endpoint
 |  2  | Unsuccessful authorisation with null name     |        null        |
 |  3  | Unsuccessful authorisation with null password |        null        |
 
+Testing Loan POST endpoints
+
+| № | Name                                                        |      Testing data      |
+|:-:|:------------------------------------------------------------|:----------------------:|
+| 1 | Getting a negative decision with the correct data           | 100,0,17,true,1000,12  |
+| 2 | Getting a positive decision (medium risk) with correct data | 20000,0,30,true,500,6  |
+| 3 | Getting a positive decision (low risk) with correct data    | 20000,0,30,true,500,12 |
+| 4 | Getting a positive decision (high risk) with correct data   | 20000,0,30,true,500,3  |
+| 5 | Unsuccessful request with debt = -100                       | 100, -100, 18, true, 1000, 12  |
+| 6 | Unsuccessful request with income = 0                        | 0, 0, 18, true, 1000, 12  |
+| 7 | Unsuccessful request with incorrect data                    | 0, 0, -10, false, 1000, 12  |
