@@ -36,4 +36,4 @@ Testing Loan POST endpoints
 | 4 | Getting a positive decision (high risk) with correct data   | 20000,0,30,true,500,3  |
 | 5 | Unsuccessful request with debt = -100                       | 100, -100, 18, true, 1000, 12  |
 | 6 | Unsuccessful request with income = 0                        | 0, 0, 18, true, 1000, 12  |
-| 7 | Unsuccessful request with incorrect data                    | 0, 'test', 18, 0, 1000, 12  |
+| 7 | Unsuccessful request with incorrect data                    | 0, 0, -10, false, 1000, 12  |
