@@ -6,23 +6,22 @@ import { OrderDto } from './dto/order-dto'
 const serviceURL = 'https://backend.tallinn-learning.ee/'
 const loginPath = 'login/student'
 const orderPath = 'orders'
-
-// JWT pattern in the form of a regular expression
-const jwtPattern = /^eyJhb[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/
+const jwtRegex = /^eyJhb[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/
+const CorrectDataLogin = LoginDto.createLoginWithCorrectData()
 
 test.describe('Tallinn delivery API tests', () => {
-  test('login with correct data and verify auth token', async ({ request }) => {
-    const requestBody = LoginDto.createLoginWithCorrectData()
-    console.log('requestBody:', requestBody)
+  test('login with correct data and verification auth token', async ({ request }) => {
+    console.log('requestBody:', CorrectDataLogin)
     const response = await request.post(`${serviceURL}${loginPath}`, {
-      data: requestBody,
+      data: CorrectDataLogin,
     })
+    const jwtValue = await response.text()
     const responseBody = await response.text()
-
     console.log('response code:', response.status())
     console.log('response body:', responseBody)
-    expect(response.status()).toBe(StatusCodes.OK)
-    expect(jwtPattern.test(responseBody)).toBeTruthy()
+    expect.soft(response.status()).toBe(StatusCodes.OK)
+    expect.soft(jwtRegex.test(responseBody)).toBeTruthy()
+    expect.soft(jwtValue).toMatch(jwtRegex)
   })
 
   test('login with incorrect data and verify response code 401', async ({ request }) => {
@@ -32,31 +31,89 @@ test.describe('Tallinn delivery API tests', () => {
       data: requestBody,
     })
     const responseBody = await response.text()
-
-    console.log('response code:', response.status())
-    console.log('response body:', responseBody)
     expect(response.status()).toBe(StatusCodes.UNAUTHORIZED)
     expect(responseBody).toBe('')
   })
 
-  test('login and create order', async ({ request }) => {
-    const requestBody = LoginDto.createLoginWithCorrectData()
+  test('login with incorrect username type and verify response code 401', async ({ request }) => {
     const response = await request.post(`${serviceURL}${loginPath}`, {
-      data: requestBody,
+      data: {
+        username: 12345,
+        password: 'password123',
+      },
     })
-    const jwt = await response.text()
+    const responseBody = await response.text()
+    expect(response.status()).toBe(StatusCodes.UNAUTHORIZED)
+    expect(responseBody).toBe('')
+  })
+
+  test('login and create correct order', async ({ request }) => {
+    const response = await request.post(`${serviceURL}${loginPath}`, {
+      data: CorrectDataLogin,
+    })
+    const jwtValue = await response.text()
     const orderResponse = await request.post(`${serviceURL}${orderPath}`, {
       data: OrderDto.createOrderWithoutId(),
       headers: {
-        Authorization: `Bearer ${jwt}`,
+        Authorization: `Bearer ${jwtValue}`,
       },
     })
-
     const orderResponseBody = await orderResponse.json()
     console.log('orderResponse status:', orderResponse.status())
     console.log('orderResponse:', orderResponseBody)
     expect.soft(orderResponse.status()).toBe(StatusCodes.OK)
     expect.soft(orderResponseBody.status).toBe('OPEN')
     expect.soft(orderResponseBody.id).toBeDefined()
+  })
+
+  test('login with incorrect HTTP method returns error 405', async ({ request }) => {
+    const response = await request.get(`${serviceURL}${loginPath}`, {
+      data: CorrectDataLogin,
+    })
+    expect.soft(response.status()).toBe(StatusCodes.METHOD_NOT_ALLOWED)
+  })
+
+  test('Create order with incorrect courierId type', async ({ request }) => {
+     const response = await request.post(`${serviceURL}${loginPath}`, {
+      data: CorrectDataLogin,
+    })
+    const jwtValue = await response.text()
+    const orderResponse = await request.post(`${serviceURL}${orderPath}`, {
+      data: {
+        status: 'OPEN',
+        courierId: 'not-a-number',
+        customerName: 'John',
+        customerPhone: '1234567890',
+        comment: 'Order comment',
+        id: 123,
+      },
+      headers: {
+        Authorization: `Bearer ${jwtValue}`,
+      },
+    })
+    const orderResponseBody = await orderResponse.text()
+    expect.soft(orderResponse.status()).toBe(StatusCodes.BAD_REQUEST)
+    expect.soft(orderResponseBody).toContain('Incorrect query')
+  })
+
+  test('create order with incorrect structure returns error 500', async ({ request }) => {
+    const response = await request.post(`${serviceURL}${loginPath}`, {
+      data: CorrectDataLogin,
+    })
+    const jwtValue = await response.text()
+    const orderResponse = await request.post(`${serviceURL}${orderPath}`, {
+      data: {
+        status: 'OPEN',
+        courierId: 12,
+        customerName: 'John',
+       // customerPhone: '1234567890', missing phone number
+        comment: 'Order comment',
+        id: 123,
+      },
+      headers: {
+        Authorization: `Bearer ${jwtValue}`,
+      },
+    })
+    expect.soft(orderResponse.status()).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
   })
 })
