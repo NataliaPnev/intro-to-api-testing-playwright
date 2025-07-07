@@ -8,7 +8,7 @@ const serviceURL = 'https://backend.tallinn-learning.ee/'
 const loginPath = 'login/student'
 const orderPath = 'orders'
 const deletePath = 'orders'
-const qqtest12 = 1
+// test pre push
 
 export class ApiClient {
   static instance: ApiClient
