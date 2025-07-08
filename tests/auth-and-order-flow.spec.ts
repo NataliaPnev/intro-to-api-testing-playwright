@@ -6,6 +6,7 @@ import { OrderDto } from './dto/order-dto'
 const serviceURL = 'https://backend.tallinn-learning.ee/'
 const loginPath = 'login/student'
 const orderPath = 'orders'
+const deletePath = 'orders'
 const jwtRegex = /^eyJhb[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/
 const CorrectDataLogin = LoginDto.createLoginWithCorrectData()
 
@@ -66,6 +67,57 @@ test.describe('Tallinn delivery API tests', () => {
     expect.soft(orderResponseBody.id).toBeDefined()
   })
 
+  test('Successful finding order by ID without ApiClient', async ({ request }) => {
+    const loginResponse = await request.post(`${serviceURL}${loginPath}`, {
+      data: CorrectDataLogin,
+    })
+    expect.soft(loginResponse.ok()).toBeTruthy()
+    const jwtValue = await loginResponse.text()
+    const createOrderResponse = await request.post(`${serviceURL}${orderPath}`, {
+      headers: { Authorization: `Bearer ${jwtValue}` },
+      data: OrderDto.createOrderWithoutId(),
+    })
+    expect.soft(createOrderResponse.ok()).toBeTruthy()
+    const { id: orderId } = await createOrderResponse.json()
+    const getOrderResponse = await request.get(`${serviceURL}${orderPath}/${orderId}`, {
+      headers: {
+        Authorization: `Bearer ${jwtValue}`,
+      },
+    })
+    expect.soft(getOrderResponse.ok()).toBeTruthy()
+    const orderData = await getOrderResponse.json()
+    console.log('Order Info by ID:', orderData)
+    expect(orderData.id).toBe(orderId)
+  })
+
+  test('Successful deleting order by ID without ApiClient', async ({ request }) => {
+    const loginResponse = await request.post(`${serviceURL}${loginPath}`, {
+      data: CorrectDataLogin,
+    })
+    expect.soft(loginResponse.ok()).toBeTruthy()
+    const jwtValue = await loginResponse.text()
+    const createOrderResponse = await request.post(`${serviceURL}${orderPath}`, {
+      headers: { Authorization: `Bearer ${jwtValue}` },
+      data: OrderDto.createOrderWithoutId(),
+    })
+    expect.soft(createOrderResponse.ok()).toBeTruthy()
+    const { id: orderId } = await createOrderResponse.json()
+    expect.soft(orderId).toBeTruthy()
+    const deleteOrderResponse = await request.delete(`${serviceURL}${deletePath}/${orderId}`, {
+      headers: {
+        Authorization: `Bearer ${jwtValue}`,
+      },
+    })
+    expect.soft(deleteOrderResponse.ok()).toBeTruthy()
+    expect.soft(deleteOrderResponse.status()).toBe(StatusCodes.OK)
+    const getOrderResponse = await request.get(`${serviceURL}${loginPath}/${orderId}`, {
+      headers: {
+        Authorization: `Bearer ${jwtValue}`,
+      },
+    })
+    expect.soft(getOrderResponse.status()).toBe(StatusCodes.NOT_FOUND)
+  })
+
   test('login with incorrect HTTP method returns error 405', async ({ request }) => {
     const response = await request.get(`${serviceURL}${loginPath}`, {
       data: CorrectDataLogin,
@@ -74,7 +126,7 @@ test.describe('Tallinn delivery API tests', () => {
   })
 
   test('Create order with incorrect courierId type', async ({ request }) => {
-     const response = await request.post(`${serviceURL}${loginPath}`, {
+    const response = await request.post(`${serviceURL}${loginPath}`, {
       data: CorrectDataLogin,
     })
     const jwtValue = await response.text()
@@ -106,7 +158,7 @@ test.describe('Tallinn delivery API tests', () => {
         status: 'OPEN',
         courierId: 12,
         customerName: 'John',
-       // customerPhone: '1234567890', missing phone number
+        // customerPhone: '1234567890', missing phone number
         comment: 'Order comment',
         id: 123,
       },
