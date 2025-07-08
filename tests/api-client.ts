@@ -19,7 +19,7 @@ export class ApiClient {
   }
 
   public static async getInstance(request: APIRequestContext): Promise<ApiClient> {
-    if (!ApiClient.instance) {
+    if (!ApiClient.instance || ApiClient.instance.request !== request) {
       ApiClient.instance = new ApiClient(request)
       await this.instance.requestJwt()
     }
@@ -71,6 +71,19 @@ export class ApiClient {
 
     const responseBody = await response.json()
     console.log('Order deleted: ')
+    console.log(responseBody)
+    return response
+  }
+
+  async getOrder(orderId: number): Promise<APIResponse> {
+    console.log('Get order...')
+    const response = await this.request.get(`${serviceURL}${orderPath}/${orderId}`, {
+      headers: {
+        Authorization: `Bearer ${this.jwt}`,
+      },
+    })
+    const responseBody = await response.text()
+    console.log('Order data: ')
     console.log(responseBody)
     return response
   }
